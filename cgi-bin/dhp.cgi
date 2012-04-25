@@ -104,7 +104,7 @@ if os.environ.has_key('VIRTUALENV'):
     sys.path.insert(0, os.path.join(home, 'src', 'git_checkouts', 'dhp'))
 
     # Configure at least DHP_ROOT
-    os.environ['DHP_CONFIG'] = os.path.join(home, 'src', 'git_checkouts', 'dhp', 'example', 'config.dhp')
+    os.environ['DHP_CONFIG'] = os.path.join(home, 'src', 'git_checkouts', 'dhp', 'example', 'config.py')
 
 from dhp import wsgi
 run_with_cgi(wsgi.WSGIHandler())
