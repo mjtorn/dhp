@@ -103,8 +103,8 @@ if os.environ.has_key('VIRTUALENV'):
     # TODO: This is a hack, get rid of it!
     sys.path.insert(0, os.path.join(home, 'src', 'git_checkouts', 'dhp'))
 
-    # TODO: This should be in a separate configuration
-    os.environ['DHP_ROOT'] = os.path.join(home, 'src', 'git_checkouts', 'dhp', 'example')
+    # Configure at least DHP_ROOT
+    os.environ['DHP_CONFIG'] = os.path.join(home, 'src', 'git_checkouts', 'dhp', 'example', 'config.dhp')
 
 from dhp import wsgi
 run_with_cgi(wsgi.WSGIHandler())
