@@ -1,37 +1,55 @@
 # vim: tabstop=4 expandtab autoindent shiftwidth=4 fileencoding=utf-8
 
+from django.core.handlers import wsgi
+
+from django import http
+
 import os
 
-class WSGIHandler():
+class WSGIHandler(wsgi.WSGIHandler):
     def __call__(self, environ, start_response):
         dhp_config = environ['DHP_CONFIG']
-        execfile(dhp_config)
 
-        dhp_root = environ['DHP_ROOT']
+        os.environ['DJANGO_SETTINGS_MODULE'] = self.get_django_conf(dhp_config)
+
+        return super(WSGIHandler, self).__call__(environ, start_response)
+
+    def get_django_conf(self, dhp_config):
+        """Mangle the name
+        """
+
+        dhp_config_file = dhp_config.rsplit('.', 1)[0]
+        dhp_config_file = dhp_config_file.rsplit('/', 3)[-2:]
+        dhp_config_module = '.'.join(dhp_config_file)
+
+        return dhp_config_module
+
+    def get_response(self, request):
+        environ = request.environ
+
+        from django.conf import settings
+
+        dhp_root = settings.DHP_ROOT
+        dhp_config = os.environ['DHP_CONFIG']
 
         file_to_serve = environ.get('PATH_INFO', '/index.dhp')
         file_to_serve = file_to_serve[1:]
         path_to_serve = os.path.join(dhp_root, file_to_serve)
 
         if os.path.exists(path_to_serve) and path_to_serve == dhp_config:
-            status = '403 FORBIDDEN'
+            status = '403'
             output = 'Do not access config'
         elif os.path.exists(path_to_serve):
             status = '200 OK'
             # XXX: chunks?
             output = open(path_to_serve, 'rb').read()
         else:
-            status = '404 NOT FOUND'
+            status = '404'
             output = 'Not found: %s' % file_to_serve
 
-        response_headers = [
-            ('Content-Type', 'text/plain'),
-            ('Content-Length', len(output)),
-        ]
+        res = http.HttpResponse(content=output, mimetype='text/plain', status=status)
 
-        start_response(status, response_headers)
-
-        return output
+        return res
 
 # EOF
 
