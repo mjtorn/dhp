@@ -1,0 +1,6 @@
+<div style="float: right">
+	{% now "jS F Y H:i:s" %}
+</div>
+
+</body>
+
