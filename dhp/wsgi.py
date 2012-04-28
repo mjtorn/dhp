@@ -132,6 +132,15 @@ class WSGIHandler(wsgi.WSGIHandler):
                 finally:
                     signals.got_request_exception.send( sender=self.__class__, request=request)
 
+        except SystemExit:
+            # Allow sys.exit() to actually exit. See tickets #1023 and #4701
+            raise
+        except: # Handle everything else, including SuspiciousOperation, etc.
+            import sys
+            # Get the exception info now, in case another exception is thrown later.
+            signals.got_request_exception.send(sender=self.__class__, request=request)
+            response = self.handle_uncaught_exception(request, sys.exc_info())
+
         return response
 
 # EOF
