@@ -77,12 +77,12 @@ class WSGIHandler(wsgi.WSGIHandler):
         try:
             if os.path.exists(path_to_serve) and path_to_serve == dhp_config:
                 raise exceptions.PermissionDenied()
-            elif os.path.exists(path_to_serve):
+            elif not os.path.exists(path_to_serve):
+                raise http.Http404()
+            else:
                 status = '200 OK'
                 # XXX: chunks?
                 output = open(path_to_serve, 'rb').read()
-            else:
-                raise http.Http404()
 
             response = http.HttpResponse(content=output, mimetype='text/plain', status=status)
 
