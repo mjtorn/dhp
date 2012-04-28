@@ -1,2 +1,2 @@
-Hello World!
+Hello World! {% now "jS F Y H:i:s" %}
 
