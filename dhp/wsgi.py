@@ -24,17 +24,25 @@ class WSGIHandler(wsgi.WSGIHandler):
 
         return dhp_config_module
 
-    def get_response(self, request):
+    def get_path_to_serve(self, request):
+        """To keep get_response simpler
+        """
+
         environ = request.environ
-
-        from django.conf import settings
-
-        dhp_root = settings.DHP_ROOT
-        dhp_config = os.environ['DHP_CONFIG']
 
         file_to_serve = environ.get('PATH_INFO', '/index.dhp')
         file_to_serve = file_to_serve[1:]
-        path_to_serve = os.path.join(dhp_root, file_to_serve)
+        path_to_serve = os.path.join(self.dhp_root, file_to_serve)
+
+        return path_to_serve
+
+    def get_response(self, request):
+        from django.conf import settings
+
+        self.dhp_root = settings.DHP_ROOT
+        dhp_config = os.environ['DHP_CONFIG']
+
+        path_to_serve = self.get_path_to_serve(request)
 
         if os.path.exists(path_to_serve) and path_to_serve == dhp_config:
             status = '403'
@@ -45,7 +53,7 @@ class WSGIHandler(wsgi.WSGIHandler):
             output = open(path_to_serve, 'rb').read()
         else:
             status = '404'
-            output = 'Not found: %s' % file_to_serve
+            output = 'Not found: %s' % path_to_serve
 
         res = http.HttpResponse(content=output, mimetype='text/plain', status=status)
 
