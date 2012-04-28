@@ -11,6 +11,14 @@
 </div>
 
 <div>
+	Embedded code without <em>import random</em> to show how the context is used as globals:
+	{% code %}
+	randint = random.randint(0, 1000)
+	{% endcode %}
+	{{randint }}
+</div>
+
+<div>
 	<a href="index.dhp">Index</a>
 </div>
 
