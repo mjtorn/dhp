@@ -6,6 +6,8 @@ home = os.path.expanduser('~')
 
 DHP_ROOT = os.path.join(home, 'src', 'git_checkouts', 'dhp', 'example')
 
+DEFAULT_INDEX = 'index.dhp'
+
 # Django settings for dhp project.
 
 DEBUG = True

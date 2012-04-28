@@ -1,5 +1,7 @@
 # vim: tabstop=4 expandtab autoindent shiftwidth=4 fileencoding=utf-8
 
+from django.conf import settings
+
 import os
 
 def get_file_to_serve(request):
@@ -11,7 +13,7 @@ def get_file_to_serve(request):
     file_to_serve = environ.get('PATH_INFO', '/index.dhp')
     file_to_serve = file_to_serve[1:]
 
-    return file_to_serve or 'index.dhp'
+    return file_to_serve or settings.DEFAULT_INDEX
 
 def get_path_to_serve(request):
     """To keep get_response simpler
