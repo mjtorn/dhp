@@ -4,6 +4,8 @@ from django.core.handlers import wsgi
 
 from django.template.base import TemplateDoesNotExist
 
+from django.template.base import add_to_builtins
+
 from django.utils.log import getLogger
 
 from django.core import signals
@@ -86,6 +88,8 @@ class WSGIHandler(wsgi.WSGIHandler):
                 file_to_serve = '%s.dhp' % file_to_serve
 
             try:
+                add_to_builtins('dhp.templatetags.dhp_tags')
+
                 args = [file_to_serve]
                 kwargs = {
                     'dictionary': {
