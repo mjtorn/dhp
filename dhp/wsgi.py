@@ -66,6 +66,7 @@ class WSGIHandler(wsgi.WSGIHandler):
         return defaults.server_error(request)
 
     def get_response(self, request):
+        from django.core import exceptions
         from django.conf import settings
 
         self.dhp_root = request.dhp_root = settings.DHP_ROOT
@@ -75,8 +76,7 @@ class WSGIHandler(wsgi.WSGIHandler):
 
         try:
             if os.path.exists(path_to_serve) and path_to_serve == dhp_config:
-                status = '403'
-                output = 'Do not access config'
+                raise exceptions.PermissionDenied()
             elif os.path.exists(path_to_serve):
                 status = '200 OK'
                 # XXX: chunks?
@@ -109,6 +109,23 @@ class WSGIHandler(wsgi.WSGIHandler):
                         signals.got_request_exception.send(sender=self.__class__, request=request)
 
                 signals.got_request_exception.send(sender=self.__class__, request=request)
+
+        except exceptions.PermissionDenied:
+            from django.views import defaults
+
+            logger.warning(
+                'Forbidden (Permission denied): %s', request.path,
+                extra={
+                    'status_code': 403,
+                    'request': request
+                })
+            try:
+                response = defaults.permission_denied(request)
+            except:
+                try:
+                    response = self.handle_uncaught_exception(request, sys.exc_info())
+                finally:
+                    signals.got_request_exception.send( sender=self.__class__, request=request)
 
         return response
 
