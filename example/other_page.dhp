@@ -1,11 +1,11 @@
 {% include "header.dhp" %}
 
 <div>
-	Hello World!
+	Other page
 </div>
 
 <div>
-	<a href="other_page">Other page</a>
+	<a href="index.dhp">Index</a>
 </div>
 
 {% include "footer.dhp" %}
