@@ -11,7 +11,7 @@ def get_file_to_serve(request):
     file_to_serve = environ.get('PATH_INFO', '/index.dhp')
     file_to_serve = file_to_serve[1:]
 
-    return file_to_serve
+    return file_to_serve or 'index.dhp'
 
 def get_path_to_serve(request):
     """To keep get_response simpler
