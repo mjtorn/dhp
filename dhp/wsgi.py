@@ -32,6 +32,39 @@ class WSGIHandler(wsgi.WSGIHandler):
 
         return dhp_config_module
 
+    def handle_uncaught_exception(self, request, exc_info):
+        """
+        Processing for any otherwise uncaught exceptions (those that will
+        generate HTTP 500 responses). Can be overridden by subclasses who want
+        customised 500 handling.
+
+        Be *very* careful when overriding this because the error could be
+        caused by anything, so assuming something like the database is always
+        available would be an error.
+
+        And of course it is overriden, to get rid of resolver ;)
+        """
+
+        from django.conf import settings
+
+        if settings.DEBUG_PROPAGATE_EXCEPTIONS:
+            raise
+
+        logger.error('Internal Server Error: %s', request.path,
+            exc_info=exc_info,
+            extra={
+                'status_code': 500,
+                'request': request
+            }
+        )
+
+        if settings.DEBUG:
+            from django.views import debug
+            return debug.technical_500_response(request, *exc_info)
+
+        from django.views import defaults
+        return defaults.server_error(request)
+
     def get_response(self, request):
         from django.conf import settings
 
@@ -63,12 +96,15 @@ class WSGIHandler(wsgi.WSGIHandler):
                 from dhp.views import debug
                 response = debug.technical_404_response(request, e)
             else:
+                from django.views import defaults
                 try:
-                    callback, param_dict = resolver.resolve404()
-                    response = callback(request, **param_dict)
+                    #template = os.path.join(self.dhp_root, '404.html')
+                    response = defaults.page_not_found(request)#, template_name=template)
                 except:
+                    import sys
                     try:
-                        response = self.handle_uncaught_exception(request, resolver, sys.exc_info())
+                        # Similar to the base one, but leave out resolver
+                        response = self.handle_uncaught_exception(request, sys.exc_info())
                     finally:
                         signals.got_request_exception.send(sender=self.__class__, request=request)
 
