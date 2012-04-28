@@ -82,6 +82,9 @@ class WSGIHandler(wsgi.WSGIHandler):
             if dhp_config.endswith(file_to_serve):
                 raise exceptions.PermissionDenied()
 
+            if not file_to_serve.endswith('.dhp'):
+                file_to_serve = '%s.dhp' % file_to_serve
+
             try:
                 args = [file_to_serve]
                 kwargs = {
