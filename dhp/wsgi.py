@@ -6,6 +6,8 @@ from django.utils.log import getLogger
 
 from django.core import signals
 
+from django.template import loader
+
 from dhp import utils
 
 from django import http
@@ -73,6 +75,7 @@ class WSGIHandler(wsgi.WSGIHandler):
         dhp_config = os.environ['DHP_CONFIG']
 
         path_to_serve = utils.get_path_to_serve(request)
+        file_to_serve = utils.get_file_to_serve(request)
 
         try:
             if os.path.exists(path_to_serve) and path_to_serve == dhp_config:
@@ -80,11 +83,13 @@ class WSGIHandler(wsgi.WSGIHandler):
             elif not os.path.exists(path_to_serve):
                 raise http.Http404()
             else:
-                status = '200 OK'
-                # XXX: chunks?
-                output = open(path_to_serve, 'rb').read()
+                args = [file_to_serve]
+                kwargs = {
+                    'dictionary': {
+                    }
+                }
 
-            response = http.HttpResponse(content=output, mimetype='text/plain', status=status)
+                response = http.HttpResponse(loader.render_to_string(*args, **kwargs), mimetype='text/html')
 
         except http.Http404, e:
             logger.warning('Not Found: %s', request.path,
