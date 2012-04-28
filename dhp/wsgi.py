@@ -24,22 +24,10 @@ class WSGIHandler(wsgi.WSGIHandler):
 
         return dhp_config_module
 
-    def get_path_to_serve(self, request):
-        """To keep get_response simpler
-        """
-
-        environ = request.environ
-
-        file_to_serve = environ.get('PATH_INFO', '/index.dhp')
-        file_to_serve = file_to_serve[1:]
-        path_to_serve = os.path.join(self.dhp_root, file_to_serve)
-
-        return path_to_serve
-
     def get_response(self, request):
         from django.conf import settings
 
-        self.dhp_root = settings.DHP_ROOT
+        self.dhp_root = request.dhp_root = settings.DHP_ROOT
         dhp_config = os.environ['DHP_CONFIG']
 
         path_to_serve = self.get_path_to_serve(request)
