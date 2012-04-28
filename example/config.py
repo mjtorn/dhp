@@ -6,5 +6,7 @@ home = os.path.expanduser('~')
 
 DHP_ROOT = os.path.join(home, 'src', 'git_checkouts', 'dhp', 'example')
 
+DEBUG = True
+
 # EOF
 
