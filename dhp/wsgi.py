@@ -2,9 +2,17 @@
 
 from django.core.handlers import wsgi
 
+from django.utils.log import getLogger
+
+from django.core import signals
+
+from dhp import utils
+
 from django import http
 
 import os
+
+logger = getLogger('django.request')
 
 class WSGIHandler(wsgi.WSGIHandler):
     def __call__(self, environ, start_response):
@@ -30,22 +38,43 @@ class WSGIHandler(wsgi.WSGIHandler):
         self.dhp_root = request.dhp_root = settings.DHP_ROOT
         dhp_config = os.environ['DHP_CONFIG']
 
-        path_to_serve = self.get_path_to_serve(request)
+        path_to_serve = utils.get_path_to_serve(request)
 
-        if os.path.exists(path_to_serve) and path_to_serve == dhp_config:
-            status = '403'
-            output = 'Do not access config'
-        elif os.path.exists(path_to_serve):
-            status = '200 OK'
-            # XXX: chunks?
-            output = open(path_to_serve, 'rb').read()
-        else:
-            status = '404'
-            output = 'Not found: %s' % path_to_serve
+        try:
+            if os.path.exists(path_to_serve) and path_to_serve == dhp_config:
+                status = '403'
+                output = 'Do not access config'
+            elif os.path.exists(path_to_serve):
+                status = '200 OK'
+                # XXX: chunks?
+                output = open(path_to_serve, 'rb').read()
+            else:
+                raise http.Http404()
 
-        res = http.HttpResponse(content=output, mimetype='text/plain', status=status)
+            response = http.HttpResponse(content=output, mimetype='text/plain', status=status)
 
-        return res
+        except http.Http404, e:
+            logger.warning('Not Found: %s', request.path,
+                        extra={
+                            'status_code': 404,
+                            'request': request
+                        })
+            if settings.DEBUG:
+                from dhp.views import debug
+                response = debug.technical_404_response(request, e)
+            else:
+                try:
+                    callback, param_dict = resolver.resolve404()
+                    response = callback(request, **param_dict)
+                except:
+                    try:
+                        response = self.handle_uncaught_exception(request, resolver, sys.exc_info())
+                    finally:
+                        signals.got_request_exception.send(sender=self.__class__, request=request)
+
+                signals.got_request_exception.send(sender=self.__class__, request=request)
+
+        return response
 
 # EOF
 
