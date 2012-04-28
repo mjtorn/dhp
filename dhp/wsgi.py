@@ -2,6 +2,8 @@
 
 from django.core.handlers import wsgi
 
+from django.template.base import TemplateDoesNotExist
+
 from django.utils.log import getLogger
 
 from django.core import signals
@@ -74,15 +76,13 @@ class WSGIHandler(wsgi.WSGIHandler):
         self.dhp_root = request.dhp_root = settings.DHP_ROOT
         dhp_config = os.environ['DHP_CONFIG']
 
-        path_to_serve = utils.get_path_to_serve(request)
         file_to_serve = utils.get_file_to_serve(request)
 
         try:
-            if os.path.exists(path_to_serve) and path_to_serve == dhp_config:
+            if dhp_config.endswith(file_to_serve):
                 raise exceptions.PermissionDenied()
-            elif not os.path.exists(path_to_serve):
-                raise http.Http404()
-            else:
+
+            try:
                 args = [file_to_serve]
                 kwargs = {
                     'dictionary': {
@@ -90,6 +90,8 @@ class WSGIHandler(wsgi.WSGIHandler):
                 }
 
                 response = http.HttpResponse(loader.render_to_string(*args, **kwargs), mimetype='text/html')
+            except TemplateDoesNotExist:
+                raise http.Http404()
 
         except http.Http404, e:
             logger.warning('Not Found: %s', request.path,
