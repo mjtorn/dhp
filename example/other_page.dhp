@@ -15,7 +15,7 @@
 	{% code %}
 	randint = random.randint(0, 1000)
 	{% endcode %}
-	{{randint }}
+	{{randint }} ({{ randint }})
 </div>
 
 <div>
