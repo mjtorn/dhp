@@ -1,0 +1,28 @@
+{% include "header.dhp" %}
+<div>
+{% code %}
+from example.forms import HelloForm
+
+data = context['request'].GET.copy() or None
+
+hello_form = HelloForm(data=data)
+
+if hello_form.is_bound and hello_form.is_valid():
+    name = hello_form.save()
+
+    name = '%s - %s' % (context['user'], name)
+
+{% endcode %}
+
+    <form method="get" action="">
+    {{ hello_form.as_p }}
+    <button type="submit">Give your name</button>
+</div>
+
+<div>
+    {% if name %}
+    {{ name }}
+    {% endif %}
+</div>
+
+{% include "footer.dhp" %}
