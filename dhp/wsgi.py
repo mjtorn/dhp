@@ -82,6 +82,14 @@ class WSGIHandler(wsgi.WSGIHandler):
 
         import sys
         try:
+            response = None
+            ### Can not
+            ## Apply request middleware
+            #for middleware_method in self._request_middleware:
+            #    response = middleware_method(request)
+            #    if response:
+            #        break
+
             if not file_to_serve.endswith('.dhp'):
                 file_to_serve = '%s.dhp' % file_to_serve
 
