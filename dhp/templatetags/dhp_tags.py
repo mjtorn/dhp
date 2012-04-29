@@ -54,6 +54,12 @@ class CodeNode(template.Node):
 
         code = '\n'.join(code_lines)
 
+        fake_context = {}
+        for dict_ in context.dicts:
+            fake_context.update(dict_)
+
+        context.dicts[0]['context'] = fake_context
+
         exec(code, context.dicts[0])
 
         return ''
