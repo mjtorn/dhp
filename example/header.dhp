@@ -18,6 +18,10 @@
 				<a href="form">Form</a>
 			</div>
 
+			<div style="float: left; margin-left: 10px;">
+				<a href="get_without_form">Get without form</a>
+			</div>
+
 		</div>
 
 <br />

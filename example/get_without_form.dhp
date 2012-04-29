@@ -1,0 +1,19 @@
+{% include "header.dhp" %}
+<div>
+{% code %}
+    name = context['request'].GET.get('name', None)
+{% endcode %}
+
+    <form method="get" action="">
+    <input type="text" name="name" />
+    <button type="submit">Give your name</button>
+</div>
+
+<div>
+    {% if name %}
+    {{ name }}
+    {% endif %}
+</div>
+
+{% include "footer.dhp" %}
+
