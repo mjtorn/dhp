@@ -4,9 +4,5 @@
 	Hello World!
 </div>
 
-<div>
-	<a href="other_page">Other page</a>
-</div>
-
 {% include "footer.dhp" %}
 

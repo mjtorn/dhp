@@ -18,9 +18,5 @@
 	{{randint }} ({{ randint }})
 </div>
 
-<div>
-	<a href="index.dhp">Index</a>
-</div>
-
 {% include "footer.dhp" %}
 

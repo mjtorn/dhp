@@ -5,3 +5,16 @@
 
 	<body>
 
+		<div style="position: relative;">
+			<div style="float: left;">
+				<a href="index.dhp">Index</a>
+			</div>
+
+			<div style="float: left; margin-left: 10px;">
+				<a href="other_page">Other page</a>
+			</div>
+
+		</div>
+
+<br />
+
