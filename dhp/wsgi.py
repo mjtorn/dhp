@@ -101,6 +101,11 @@ class WSGIHandler(wsgi.WSGIHandler):
                 }
 
                 response = http.HttpResponse(loader.render_to_string(*args, **kwargs), mimetype='text/html')
+
+                # See if we go out
+                redirect_to = kwargs['context_instance'].get('redirect_to', None)
+                if redirect_to:
+                    response = http.HttpResponseRedirect(redirect_to)
             except TemplateDoesNotExist:
                 raise http.Http404()
 
