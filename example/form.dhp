@@ -17,6 +17,7 @@ if hello_form.is_bound and hello_form.is_valid():
     <form method="get" action="">
     {{ hello_form.as_p }}
     <button type="submit">Give your name</button>
+    </form>
 </div>
 
 <div>

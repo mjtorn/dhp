@@ -7,6 +7,7 @@
     <form method="get" action="">
     <input type="text" name="name" />
     <button type="submit">Give your name</button>
+    </form>
 </div>
 
 <div>
