@@ -10,7 +10,7 @@ from django.utils.log import getLogger
 
 from django.core import signals
 
-from django.template import loader
+from django.template import loader, RequestContext
 
 from dhp import utils
 
@@ -92,8 +92,12 @@ class WSGIHandler(wsgi.WSGIHandler):
 
                 args = [file_to_serve]
                 kwargs = {
+                    # If we do not force this, fake_context will have 'request': {} o_O
                     'dictionary': {
-                    }
+                        'request': request,
+                    },
+                    'context_instance': RequestContext({
+                    })
                 }
 
                 response = http.HttpResponse(loader.render_to_string(*args, **kwargs), mimetype='text/html')
