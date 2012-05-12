@@ -80,6 +80,7 @@ class WSGIHandler(wsgi.WSGIHandler):
 
         file_to_serve = utils.get_file_to_serve(request)
 
+        import sys
         try:
             if not file_to_serve.endswith('.dhp'):
                 file_to_serve = '%s.dhp' % file_to_serve
@@ -121,7 +122,6 @@ class WSGIHandler(wsgi.WSGIHandler):
                     #template = os.path.join(self.dhp_root, '404.html')
                     response = defaults.page_not_found(request)#, template_name=template)
                 except:
-                    import sys
                     try:
                         # Similar to the base one, but leave out resolver
                         response = self.handle_uncaught_exception(request, sys.exc_info())
@@ -153,6 +153,20 @@ class WSGIHandler(wsgi.WSGIHandler):
         except: # Handle everything else, including SuspiciousOperation, etc.
             import sys
             # Get the exception info now, in case another exception is thrown later.
+            signals.got_request_exception.send(sender=self.__class__, request=request)
+            response = self.handle_uncaught_exception(request, sys.exc_info())
+
+        if hasattr(response, 'render') and callable(response.render):
+            for middleware_method in self._template_response_middleware:
+                response = middleware_method(request, response)
+            response.render()
+
+        try:
+            # Apply response middleware, regardless of the response
+            for middleware_method in self._response_middleware:
+                response = middleware_method(request, response)
+            response = self.apply_response_fixes(request, response)
+        except: # Any exception should be gathered and handled
             signals.got_request_exception.send(sender=self.__class__, request=request)
             response = self.handle_uncaught_exception(request, sys.exc_info())
 
